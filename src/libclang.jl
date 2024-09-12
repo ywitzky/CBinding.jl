@@ -17,8 +17,18 @@ end
 module libclang
 	import Clang_jll
 	using ..CBinding
-	
-	include(joinpath(dirname(@__DIR__), "deps/libclang-$(CBinding.libclang_version(Clang_jll.libclang_path)).jl"))
+	using Pkg
+
+	try ### kept for backwards compatibility
+		include(joinpath(dirname(@__DIR__), "deps/libclang-$(CBinding.libclang_version(Clang_jll.libclang_path)).jl"))
+	catch
+		for val in values(Pkg.dependencies())
+			if val.name=="Clang_jll"
+				include(joinpath(dirname(@__DIR__), "deps/libclang-$(val.version.major).jl"))
+				break
+			end
+		end
+	end
 end
 
 using .libclang
